@@ -33,10 +33,10 @@ void copy(char *src, char *dst)
         fprintf(stderr, "ERROR: %s doesn't exists\n", src);
         exit(1);
     }
-    dfd = open(dst,O_CREAT|O_WRONLY|O_TRUNC,fileMode);
-    while((count = read(sfd,buffer,BUFFER_SIZE))>0)
+    dfd = open(dst, O_CREAT | O_WRONLY | O_TRUNC, fileMode);
+    while ((count = read(sfd, buffer, BUFFER_SIZE)) > 0)
     {
-        write(dfd,buffer,count);
+        write(dfd, buffer, count);
     }
     close(sfd);
     close(dfd);
