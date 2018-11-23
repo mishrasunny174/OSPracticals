@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "procfs.h": "c",
-        "stat.h": "c"
+        "stat.h": "c",
+        "iostream": "cpp"
     }
 }
