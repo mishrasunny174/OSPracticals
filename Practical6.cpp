@@ -105,6 +105,7 @@ void schedulerSimulator::simulate()
         queue[i].turnAroundTime = queue[i].waitingTime + queue[i].burstTime;
     }
     system(CLRSCR);
+    cout<<"FCFS scheduling"<<endl<<endl;
     for (int i = 0; i < numberOfProcesses; i++)
     {
         this->queue[i].run();
