@@ -11,7 +11,7 @@
 
 using namespace std;
 
-class SJFScheduler;
+class PriorityScheduler;
 
 class process
 {
@@ -23,7 +23,7 @@ class process
     int runTime;
     int priority;
     bool isPresentInReadyQueue;
-    friend class SJFScheduler;
+    friend class PriorityScheduler;
 
   public:
     process();
@@ -31,7 +31,7 @@ class process
     void show();
 };
 
-class SJFScheduler
+class PriorityScheduler
 {
     queue<process> jobQueue;
     queue<process> readyQueue;
@@ -44,7 +44,7 @@ class SJFScheduler
     int calculateAverageTurnAroundTime();
 
   public:
-    SJFScheduler(int totalProcesses);
+    PriorityScheduler(int totalProcesses);
     void simulate();
 };
 
@@ -54,7 +54,7 @@ int main()
     int numOfProcesses;
     cout << "Enter number of processes to simulate: ";
     cin >> numOfProcesses;
-    SJFScheduler sched(numOfProcesses);
+    PriorityScheduler sched(numOfProcesses);
     sched.simulate();
     cout << "Press enter to continue...";
     cin.ignore();
@@ -94,7 +94,7 @@ void process::show()
          << endl;
 }
 
-SJFScheduler::SJFScheduler(int totalProcesses) : totalProcesses(totalProcesses)
+PriorityScheduler::PriorityScheduler(int totalProcesses) : totalProcesses(totalProcesses)
 {
     for (int i = 0; i < totalProcesses; i++)
     {
@@ -105,12 +105,12 @@ SJFScheduler::SJFScheduler(int totalProcesses) : totalProcesses(totalProcesses)
     totalBurstTime = 0;
 }
 
-void SJFScheduler::sortJobs()
+void PriorityScheduler::sortJobs()
 {
     sort(tasks.begin(), tasks.end());
 }
 
-void SJFScheduler::simulate()
+void PriorityScheduler::simulate()
 {
     system(CLRSCR);
     sortJobs();
@@ -164,7 +164,7 @@ void SJFScheduler::simulate()
          << "average turn around time: " << calculateAverageTurnAroundTime() << endl;
 }
 
-int SJFScheduler::calculateAverageWaitingTime()
+int PriorityScheduler::calculateAverageWaitingTime()
 {
     int sum = 0;
     for (auto iter = tasks.begin(); iter != tasks.end(); iter++)
@@ -172,7 +172,7 @@ int SJFScheduler::calculateAverageWaitingTime()
     return sum / totalProcesses;
 }
 
-int SJFScheduler::calculateAverageTurnAroundTime()
+int PriorityScheduler::calculateAverageTurnAroundTime()
 {
     int sum = 0;
     for (auto iter = tasks.begin(); iter != tasks.end(); iter++)
@@ -180,7 +180,7 @@ int SJFScheduler::calculateAverageTurnAroundTime()
     return sum / totalProcesses;
 }
 
-void SJFScheduler::schedule()
+void PriorityScheduler::schedule()
 {
     vector<process> temp;
     while (!readyQueue.empty())

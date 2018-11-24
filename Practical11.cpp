@@ -11,7 +11,7 @@
 
 using namespace std;
 
-class PreemptivePriorityScheduler;
+class SRJFScheduler;
 
 class process
 {
@@ -21,9 +21,8 @@ class process
     int turnAroundTime;
     int waitingTime;
     int runTime;
-    int priority;
     bool isPresentInReadyQueue;
-    friend class PreemptivePriorityScheduler;
+    friend class SRJFScheduler;
 
   public:
     process();
@@ -31,7 +30,7 @@ class process
     void show();
 };
 
-class PreemptivePriorityScheduler
+class SRJFScheduler
 {
     queue<process> jobQueue;
     queue<process> readyQueue;
@@ -44,7 +43,7 @@ class PreemptivePriorityScheduler
     int calculateAverageTurnAroundTime();
 
   public:
-    PreemptivePriorityScheduler(int totalProcesses);
+    SRJFScheduler(int totalProcesses);
     void simulate();
 };
 
@@ -54,7 +53,7 @@ int main()
     int numOfProcesses;
     cout << "Enter number of processes to simulate: ";
     cin >> numOfProcesses;
-    PreemptivePriorityScheduler sched(numOfProcesses);
+    SRJFScheduler sched(numOfProcesses);
     sched.simulate();
     cout << "Press enter to continue...";
     cin.ignore();
@@ -70,8 +69,6 @@ process::process()
     cin >> arrivalTime;
     cout << "Enter burst time: ";
     cin >> burstTime;
-    cout << "Enter priority: ";
-    cin >> priority;
     waitingTime = 0;
     runTime = 0;
     turnAroundTime = 0;
@@ -80,8 +77,6 @@ process::process()
 
 bool process::operator<(const process &p)
 {
-    if(this->arrivalTime==p.arrivalTime)
-        return this->priority<p.priority;
     return this->arrivalTime < p.arrivalTime;
 }
 
@@ -94,7 +89,7 @@ void process::show()
          << endl;
 }
 
-PreemptivePriorityScheduler::PreemptivePriorityScheduler(int totalProcesses) : totalProcesses(totalProcesses)
+SRJFScheduler::SRJFScheduler(int totalProcesses) : totalProcesses(totalProcesses)
 {
     for (int i = 0; i < totalProcesses; i++)
     {
@@ -105,12 +100,12 @@ PreemptivePriorityScheduler::PreemptivePriorityScheduler(int totalProcesses) : t
     totalBurstTime = 0;
 }
 
-void PreemptivePriorityScheduler::sortJobs()
+void SRJFScheduler::sortJobs()
 {
     sort(tasks.begin(), tasks.end());
 }
 
-void PreemptivePriorityScheduler::simulate()
+void SRJFScheduler::simulate()
 {
     system(CLRSCR);
     sortJobs();
@@ -165,7 +160,8 @@ void PreemptivePriorityScheduler::simulate()
          << "average turn around time: " << calculateAverageTurnAroundTime() << endl;
 }
 
-int PreemptivePriorityScheduler::calculateAverageWaitingTime()
+
+int SRJFScheduler::calculateAverageWaitingTime()
 {
     int sum = 0;
     for (auto iter = tasks.begin(); iter != tasks.end(); iter++)
@@ -173,7 +169,7 @@ int PreemptivePriorityScheduler::calculateAverageWaitingTime()
     return sum / totalProcesses;
 }
 
-int PreemptivePriorityScheduler::calculateAverageTurnAroundTime()
+int SRJFScheduler::calculateAverageTurnAroundTime()
 {
     int sum = 0;
     for (auto iter = tasks.begin(); iter != tasks.end(); iter++)
@@ -181,7 +177,7 @@ int PreemptivePriorityScheduler::calculateAverageTurnAroundTime()
     return sum / totalProcesses;
 }
 
-void PreemptivePriorityScheduler::schedule()
+void SRJFScheduler::schedule()
 {
     vector<process> temp;
     while (!readyQueue.empty())
@@ -190,8 +186,8 @@ void PreemptivePriorityScheduler::schedule()
         readyQueue.pop();
     }
     sort(temp.begin(), temp.end(), [](process p1, process p2) {
-        return p1.priority < p2.priority;
+        return (p1.burstTime - p1.runTime) < (p2.burstTime - p2.runTime);
     });
-    for (auto iter = temp.begin(); iter != temp.end(); iter++)
+    for(auto iter = temp.begin();iter!=temp.end();iter++)
         readyQueue.push(*iter);
 }
