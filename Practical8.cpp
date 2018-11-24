@@ -11,7 +11,7 @@
 
 using namespace std;
 
-class RoundRobinScheduler;
+class SJFScheduler;
 
 class process
 {
@@ -21,7 +21,7 @@ class process
     int turnAroundTime;
     int waitingTime;
     int runTime;
-    friend class RoundRobinScheduler;
+    friend class SJFScheduler;
 
   public:
     process();
@@ -29,33 +29,30 @@ class process
     void show();
 };
 
-class RoundRobinScheduler
+class SJFScheduler
 {
     queue<process> jobQueue;
     queue<process> readyQueue;
     vector<process> tasks;
-    const int timeSlice;
     const int totalProcesses;
     int totalBurstTime;
+    void sortJobs();
     void schedule();
-    void contextSwitch();
     int calculateAverageWaitingTime();
     int calculateAverageTurnAroundTime();
 
   public:
-    RoundRobinScheduler(int timeSlice, int totalProcesses);
+    SJFScheduler(int totalProcesses);
     void simulate();
 };
 
 int main()
 {
     system(CLRSCR);
-    int numOfProcesses, timeSlice;
+    int numOfProcesses;
     cout << "Enter number of processes to simulate: ";
     cin >> numOfProcesses;
-    cout << "Enter time slice: ";
-    cin >> timeSlice;
-    RoundRobinScheduler sched(timeSlice, numOfProcesses);
+    SJFScheduler sched(numOfProcesses);
     sched.simulate();
     cout << "Press enter to continue...";
     cin.ignore();
@@ -90,7 +87,7 @@ void process::show()
          << endl;
 }
 
-RoundRobinScheduler::RoundRobinScheduler(int timeSlice, int totalProcesses) : timeSlice(timeSlice), totalProcesses(totalProcesses)
+SJFScheduler::SJFScheduler(int totalProcesses) : totalProcesses(totalProcesses)
 {
     for (int i = 0; i < totalProcesses; i++)
     {
@@ -101,15 +98,15 @@ RoundRobinScheduler::RoundRobinScheduler(int timeSlice, int totalProcesses) : ti
     totalBurstTime = 0;
 }
 
-void RoundRobinScheduler::schedule()
+void SJFScheduler::sortJobs()
 {
     sort(tasks.begin(), tasks.end());
 }
 
-void RoundRobinScheduler::simulate()
+void SJFScheduler::simulate()
 {
     system(CLRSCR);
-    schedule();
+    sortJobs();
     for (auto iter = tasks.begin(); iter != tasks.end(); iter++)
     {
         totalBurstTime += iter->burstTime;
@@ -125,14 +122,10 @@ void RoundRobinScheduler::simulate()
             readyQueue.push(jobQueue.front());
             jobQueue.pop();
         }
-        if (i % timeSlice == 0 || readyQueue.front().runTime == readyQueue.front().burstTime)
+        if (readyQueue.front().runTime == readyQueue.front().burstTime)
         {
-            if (readyQueue.front().runTime == readyQueue.front().burstTime)
-            {
-                readyQueue.pop();
-            }
-            else
-                contextSwitch();
+            readyQueue.pop();
+            schedule();
         }
         readyQueue.front().runTime++;
         // cout<<"running "<<readyQueue.front().processId<<endl;
@@ -156,24 +149,34 @@ void RoundRobinScheduler::simulate()
          << "average turn around time: " << calculateAverageTurnAroundTime() << endl;
 }
 
-void RoundRobinScheduler::contextSwitch()
+
+int SJFScheduler::calculateAverageWaitingTime()
 {
-    readyQueue.push(readyQueue.front());
-    readyQueue.pop();
+    int sum = 0;
+    for (auto iter = tasks.begin(); iter != tasks.end(); iter++)
+        sum += iter->waitingTime;
+    return sum / totalProcesses;
 }
 
-int RoundRobinScheduler::calculateAverageWaitingTime()
+int SJFScheduler::calculateAverageTurnAroundTime()
 {
-    int sum=0;
+    int sum = 0;
     for (auto iter = tasks.begin(); iter != tasks.end(); iter++)
-        sum+=iter->waitingTime;
-    return sum/totalProcesses;
+        sum += iter->turnAroundTime;
+    return sum / totalProcesses;
 }
 
-int RoundRobinScheduler::calculateAverageTurnAroundTime()
+void SJFScheduler::schedule()
 {
-    int sum=0;
-    for (auto iter = tasks.begin(); iter != tasks.end(); iter++)
-        sum+=iter->turnAroundTime;
-    return sum/totalProcesses;
+    vector<process> temp;
+    while (!readyQueue.empty())
+    {
+        temp.push_back(readyQueue.front());
+        readyQueue.pop();
+    }
+    sort(temp.begin(), temp.end(), [](process p1, process p2) {
+        return p1.burstTime < p2.burstTime;
+    });
+    for(auto iter = temp.begin();iter!=temp.end();iter++)
+        readyQueue.push(*iter);
 }
