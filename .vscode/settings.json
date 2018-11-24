@@ -2,6 +2,7 @@
     "files.associations": {
         "procfs.h": "c",
         "stat.h": "c",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "*.tcc": "cpp"
     }
 }
