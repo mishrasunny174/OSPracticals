@@ -21,6 +21,7 @@ class process
     int turnAroundTime;
     int waitingTime;
     int runTime;
+    int priority;
     friend class SJFScheduler;
 
   public:
@@ -68,6 +69,8 @@ process::process()
     cin >> arrivalTime;
     cout << "Enter burst time: ";
     cin >> burstTime;
+    cout << "Enter priority: ";
+    cin >> priority;
     waitingTime = 0;
     runTime = 0;
     turnAroundTime = 0;
@@ -75,6 +78,8 @@ process::process()
 
 bool process::operator<(const process &p)
 {
+    if(this->arrivalTime==p.arrivalTime)
+        return this->priority<p.priority;
     return this->arrivalTime < p.arrivalTime;
 }
 
@@ -131,7 +136,7 @@ void SJFScheduler::simulate()
         // cout<<"running "<<readyQueue.front().processId<<endl;
         for (auto iter = tasks.begin(); iter != tasks.end(); iter++)
         {
-            if(iter->runTime==iter->burstTime)
+            if (iter->runTime == iter->burstTime)
                 continue;
             if (iter->processId != readyQueue.front().processId)
                 iter->waitingTime++;
@@ -148,7 +153,6 @@ void SJFScheduler::simulate()
          << "average waiting time: " << calculateAverageWaitingTime() << endl
          << "average turn around time: " << calculateAverageTurnAroundTime() << endl;
 }
-
 
 int SJFScheduler::calculateAverageWaitingTime()
 {
@@ -175,8 +179,8 @@ void SJFScheduler::schedule()
         readyQueue.pop();
     }
     sort(temp.begin(), temp.end(), [](process p1, process p2) {
-        return p1.burstTime < p2.burstTime;
+        return p1.priority < p2.priority;
     });
-    for(auto iter = temp.begin();iter!=temp.end();iter++)
+    for (auto iter = temp.begin(); iter != temp.end(); iter++)
         readyQueue.push(*iter);
 }
