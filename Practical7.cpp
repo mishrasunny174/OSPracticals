@@ -21,6 +21,7 @@ class process
     int turnAroundTime;
     int waitingTime;
     int runTime;
+    bool isPresentInReadyQueue;
     friend class RoundRobinScheduler;
 
   public:
@@ -74,6 +75,7 @@ process::process()
     waitingTime = 0;
     runTime = 0;
     turnAroundTime = 0;
+    isPresentInReadyQueue = false;
 }
 
 bool process::operator<(const process &p)
@@ -123,6 +125,11 @@ void RoundRobinScheduler::simulate()
         while (!jobQueue.empty() && jobQueue.front().arrivalTime == i)
         {
             readyQueue.push(jobQueue.front());
+            for(auto iter = tasks.begin();iter<=tasks.end();iter++)
+            {
+                if (iter->processId == jobQueue.front().processId)
+                    iter->isPresentInReadyQueue=true;
+            }
             jobQueue.pop();
         }
         if (i % timeSlice == 0 || readyQueue.front().runTime == readyQueue.front().burstTime)
@@ -138,10 +145,13 @@ void RoundRobinScheduler::simulate()
         // cout<<"running "<<readyQueue.front().processId<<endl;
         for (auto iter = tasks.begin(); iter != tasks.end(); iter++)
         {
-            if(iter->runTime==iter->burstTime)
+            if (iter->runTime == iter->burstTime)
                 continue;
             if (iter->processId != readyQueue.front().processId)
-                iter->waitingTime++;
+            {
+                if(iter->isPresentInReadyQueue)
+                    iter->waitingTime++;
+            }
             else
                 iter->runTime++;
         }

@@ -133,6 +133,7 @@ void SJFScheduler::simulate()
                     iter->isPresentInReadyQueue=true;
             }
             jobQueue.pop();
+            schedule();
         }
         if (readyQueue.front().runTime == readyQueue.front().burstTime)
         {
